@@ -68,10 +68,10 @@ void Transpiler::translateGenericSample(const ControlFlowInst &cf, const Texture
    destGpr.mask[SQ_CHAN::Z] = inst.word1.DST_SEL_Z();
    destGpr.mask[SQ_CHAN::W] = inst.word1.DST_SEL_W();
 
-   auto lodBias = inst.word1.LOD_BIAS();
-   auto offsetX = inst.word2.OFFSET_X();
-   auto offsetY = inst.word2.OFFSET_Y();
-   auto offsetZ = inst.word2.OFFSET_Z();
+   auto lodBias = static_cast<float>(inst.word1.LOD_BIAS());
+   auto offsetX = static_cast<float>(inst.word2.OFFSET_X());
+   auto offsetY = static_cast<float>(inst.word2.OFFSET_Y());
+   auto offsetZ = static_cast<float>(inst.word2.OFFSET_Z());
 
    auto srcGprVal = mSpv->readGprMaskRef(srcGpr);
 

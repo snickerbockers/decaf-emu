@@ -12,7 +12,7 @@
 namespace cafe::sndcore2
 {
 
-using Pcm16Sample = sg14::make_fixed<15, 0, int16_t>;
+using Pcm16Sample = ufixed_1_15_t;
 
 using AXVoiceCallbackFn = virt_func_ptr<
    virt_ptr<void>()

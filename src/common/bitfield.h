@@ -80,20 +80,20 @@ struct BitfieldHelper<BitfieldType, bool, Position, Bits>
 };
 
 // Specialise for fixed_point
-template<typename BitfieldType, unsigned Position, unsigned Bits, class Rep, int Exponent>
-struct BitfieldHelper<BitfieldType, sg14::fixed_point<Rep, Exponent>, Position, Bits>
+template<typename BitfieldType, unsigned Position, unsigned Bits, class Rep, int Exponent, int Radix>
+struct BitfieldHelper<BitfieldType, cnl::fixed_point<Rep, Exponent, Radix>, Position, Bits>
 {
-   using FixedType = sg14::fixed_point<Rep, Exponent>;
+   using FixedType = cnl::fixed_point<Rep, Exponent, Radix>;
    using ValueBitfield = BitfieldHelper<BitfieldType, Rep, Position, Bits>;
 
    static FixedType get(BitfieldType bitfield)
    {
-      return FixedType::from_data(ValueBitfield::get(bitfield));
+      return cnl::from_rep<FixedType, Rep>{}(ValueBitfield::get(bitfield));
    }
 
    static inline BitfieldType set(BitfieldType bitfield, FixedType fixedValue)
    {
-      return ValueBitfield::set(bitfield, fixedValue.data());
+      return ValueBitfield::set(bitfield, cnl::to_rep<FixedType>{}(fixedValue));
    }
 };
 
