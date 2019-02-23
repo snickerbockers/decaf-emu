@@ -706,7 +706,7 @@ GLDriver::getSurfaceBuffer(phys_addr baseAddress,
                            bool forWrite,
                            bool discardData)
 {
-   decaf_check(baseAddress);
+   // decaf_check(baseAddress);
    decaf_check(width);
    decaf_check(height);
    decaf_check(depth);

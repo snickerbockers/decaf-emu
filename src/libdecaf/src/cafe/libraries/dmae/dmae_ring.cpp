@@ -59,6 +59,10 @@ DMAECopyMem(virt_ptr<void> dst,
 {
    coreinit::OSLockMutex(virt_addrof(sRingData->mutex));
 
+   if (dst.get() == (void*)0xF452B100) gLog->debug("invalidating texture {}???", dst);
+   gLog->debug("destination pointer {}", dst);
+   gLog->debug("the get is {}", dst.get());
+
    if (endian == DMAEEndianSwapMode::None) {
       std::memcpy(dst.get(),
                   src.get(),

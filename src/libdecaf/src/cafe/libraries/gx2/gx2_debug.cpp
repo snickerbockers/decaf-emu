@@ -81,9 +81,9 @@ debugDumpTexture(virt_ptr<const GX2Texture> texture)
    // Write text dump of GX2Texture structure to texture_X.txt
    auto filename = fmt::format("texture_{}", texture);
 
-   if (platform::fileExists("dump/" + filename + ".txt")) {
-      return;
-   }
+   // if (platform::fileExists("dump/" + filename + ".txt")) {
+   //    return;
+   // }
 
    auto file = std::ofstream { "dump/" + filename + ".txt", std::ofstream::out };
    auto out = fmt::memory_buffer {};

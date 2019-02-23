@@ -1547,6 +1547,7 @@ FSOpenFileEx(virt_ptr<FSClient> client,
 
    FSStatus ret;
    if (oopslol) {
+       gLog->debug("oopslol");
        ret = FSStatus::OK;
        oopslol = false;
    } else

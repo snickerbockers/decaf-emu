@@ -40,6 +40,7 @@ static std::pair<unsigned, unsigned>
 getTVSize(GX2TVRenderMode mode)
 {
    switch (mode) {
+   default:
    case GX2TVRenderMode::Standard480p:
       return { 640, 480 };
    case GX2TVRenderMode::Wide480p:
@@ -48,7 +49,6 @@ getTVSize(GX2TVRenderMode mode)
       return { 1280, 720 };
    case GX2TVRenderMode::Unk720p:
       return { 1280, 720 };
-   default:
    case GX2TVRenderMode::Wide1080p:
       return { 1920, 1080 };
    // default:
