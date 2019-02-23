@@ -116,6 +116,7 @@ handleCpuInterrupt(cpu::Core *core,
    }
 
    if (flags & cpu::DBGBREAK_INTERRUPT) {
+      gLog->debug("At line {} of {}", __LINE__, __FILE__);
       dispatchException(ExceptionType::Breakpoint, interruptedContext);
    }
 
@@ -200,6 +201,8 @@ unhandledExceptionFiberEntryPoint(void *param)
       //  and so that the debugger shows the right stop point.
       cpu::this_core::state()->nia -= 4;
 
+      gLog->debug("At line {} of {}", __LINE__, __FILE__);
+
       coreinit::internal::pauseCoreTime(true);
       decaf::debug::handleDebugBreakInterrupt();
       coreinit::internal::pauseCoreTime(false);
@@ -248,6 +251,7 @@ handleDebugBreakException(ExceptionType type,
                           virt_ptr<Context> interruptedContext)
 {
    if (decaf::config()->debugger.enabled) {
+      gLog->debug("At line {} of {}", __LINE__, __FILE__);
       coreinit::internal::pauseCoreTime(true);
       decaf::debug::handleDebugBreakInterrupt();
       coreinit::internal::pauseCoreTime(false);

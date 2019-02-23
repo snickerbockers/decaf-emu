@@ -485,19 +485,27 @@ FSADevice::openDir(vfs::User user,
 }
 
 
+#define TRACE gLog->debug("At line {} of {}", __LINE__, __FILE__)
+
 FSAStatus
 FSADevice::openFile(vfs::User user,
                     phys_ptr<FSARequestOpenFile> request,
                     phys_ptr<FSAResponseOpenFile> response)
 {
+   TRACE;
    auto path = translatePath(phys_addrof(request->path));
+   TRACE;
    auto mode = translateMode(phys_addrof(request->mode));
+   TRACE;
    auto result = mFS->openFile(user, path, mode);
    if (!result) {
+   TRACE;
       return translateError(result.error());
    }
 
+   TRACE;
    response->handle = mapHandle(std::move(*result));
+   TRACE;
    return FSAStatus::OK;
 }
 
