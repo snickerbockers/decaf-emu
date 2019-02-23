@@ -48,10 +48,12 @@ getTVSize(GX2TVRenderMode mode)
       return { 1280, 720 };
    case GX2TVRenderMode::Unk720p:
       return { 1280, 720 };
+   default:
    case GX2TVRenderMode::Wide1080p:
       return { 1920, 1080 };
-   default:
-      decaf_abort(fmt::format("Invalid GX2TVRenderMode {}", to_string(mode)));
+   // default:
+   //     return { 0, 0 } ;
+       //decaf_abort(fmt::format("Invalid GX2TVRenderMode {}", to_string(mode)));
    }
 }
 

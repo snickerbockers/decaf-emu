@@ -96,6 +96,7 @@ ready()
 bool
 pause()
 {
+   gLog->debug("{}", __func__);
    for (auto i = 0; i < 3; ++i) {
       cpu::interrupt(i, cpu::DBGBREAK_INTERRUPT);
    }
@@ -213,6 +214,7 @@ removeBreakpoint(VirtualAddress address)
 void
 handleDebugBreakInterrupt()
 {
+   gLog->debug("{}", __func__);
    static constexpr unsigned NoCores = 0;
    static constexpr unsigned AllCores = (1 << 0) | (1 << 1) | (1 << 2);
 
@@ -241,6 +243,8 @@ handleDebugBreakInterrupt()
       sController.coresPausing.store(0);
       sController.coresResuming.store(0);
    }
+
+   gLog->debug("{} - breakpoint hit", __func__);
 
    // Spin around the release condition while we are paused
    while (sController.coresPausing.load() || sController.isPaused.load()) {

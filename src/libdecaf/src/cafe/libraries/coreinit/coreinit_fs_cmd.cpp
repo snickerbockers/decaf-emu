@@ -1475,9 +1475,12 @@ FSOpenFile(virt_ptr<FSClient> client,
            virt_ptr<FSFileHandle> outHandle,
            FSErrorFlag errorMask)
 {
-   return FSOpenFileEx(client, block, path, mode,
-                       0x660, 0, 0,
-                       outHandle, errorMask);
+   gLog->debug("enter {}", __func__);
+   FSStatus ret = FSOpenFileEx(client, block, path, mode,
+                               0x660, 0, 0,
+                               outHandle, errorMask);
+   gLog->debug("leave {} (return {})", __func__, ret);
+   return ret;
 }
 
 
@@ -1496,9 +1499,12 @@ FSOpenFileAsync(virt_ptr<FSClient> client,
                 FSErrorFlag errorMask,
                 virt_ptr<const FSAsyncData> asyncData)
 {
-   return FSOpenFileExAsync(client, block, path, mode,
-                            0x660, 0, 0,
-                            outHandle, errorMask, asyncData);
+   gLog->debug("enter {}", __func__);
+   FSStatus ret = FSOpenFileExAsync(client, block, path, mode,
+                                    0x660, 0, 0,
+                                    outHandle, errorMask, asyncData);
+   gLog->debug("leave {} (return {})", __func__, ret);
+   return ret;
 }
 
 
@@ -1528,6 +1534,7 @@ FSOpenFileEx(virt_ptr<FSClient> client,
              virt_ptr<FSFileHandle> outHandle,
              FSErrorFlag errorMask)
 {
+   gLog->debug("Enter {}", __func__);
    StackObject<FSAsyncData> asyncData;
    internal::fsCmdBlockPrepareSync(client, block, asyncData);
 
@@ -1535,9 +1542,17 @@ FSOpenFileEx(virt_ptr<FSClient> client,
                                    unk1, unk2, unk3,
                                    outHandle, errorMask, asyncData);
 
-   return internal::fsClientHandleAsyncResult(client, block, result, errorMask);
+   gLog->debug("ENTER FSOpenFileEx\n");
+
+   FSStatus ret = FSStatus::OK;
+   // auto ret = internal::fsClientHandleAsyncResult(client, block, result, errorMask);
+
+   gLog->debug("Leave {} (return {})", __func__, ret);
+
+   return ret;
 }
 
+#define TRACE gLog->debug("At line {} of {}", __LINE__, __FILE__)
 
 /**
  * Open a file (asynchronously).
@@ -1557,41 +1572,65 @@ FSOpenFileExAsync(virt_ptr<FSClient> client,
                   FSErrorFlag errorMask,
                   virt_ptr<const FSAsyncData> asyncData)
 {
+   gLog->debug("enter {}", __func__);
+   TRACE;
    auto clientBody = internal::fsClientGetBody(client);
+   TRACE;
    auto blockBody = internal::fsCmdBlockGetBody(block);
+   TRACE;
    auto result = internal::fsCmdBlockPrepareAsync(clientBody, blockBody,
                                                   errorMask, asyncData);
+   TRACE;
 
    if (result != FSStatus::OK) {
       return result;
    }
 
+   TRACE;
    if (!outHandle) {
+   TRACE;
       internal::fsClientHandleFatalError(clientBody, FSAStatus::InvalidBuffer);
+   TRACE;
       return FSStatus::FatalError;
    }
 
+   TRACE;
    if (!path) {
+   TRACE;
       internal::fsClientHandleFatalError(clientBody, FSAStatus::InvalidPath);
+   TRACE;
       return FSStatus::FatalError;
    }
 
+   TRACE;
    if (!mode) {
+   TRACE;
       internal::fsClientHandleFatalError(clientBody, FSAStatus::InvalidParam);
+   TRACE;
       return FSStatus::FatalError;
    }
 
+   TRACE;
    blockBody->cmdData.openFile.handle = outHandle;
+   TRACE;
    auto error = internal::fsaShimPrepareRequestOpenFile(virt_addrof(blockBody->fsaShimBuffer),
                                                         clientBody->clientHandle,
                                                         path, mode,
                                                         unk1, unk2, unk3);
 
+   TRACE;
    if (error) {
-      return internal::fsClientHandleShimPrepareError(clientBody, error);
+      TRACE;
+      gLog->debug("********************************************************");
+      gLog->debug("Leave {} (error is {})", __func__);
+      auto ret = internal::fsClientHandleShimPrepareError(clientBody, error);
+      gLog->debug("Really leave {} (ret is {})", __func__, ret);
    }
 
+   TRACE;
    internal::fsClientSubmitCommand(clientBody, blockBody, internal::FinishCmd);
+   TRACE;
+   gLog->debug("leave {} (success)", __func__);
    return FSStatus::OK;
 }
 

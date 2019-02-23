@@ -229,10 +229,15 @@ fsCmdQueueProcessCmd(virt_ptr<FSCmdQueue> queue)
       OSFastMutex_Unlock(virt_addrof(queue->mutex));
 
       // Call the dequeue command handler
-      if (cafe::invoke(cpu::this_core::state(),
-                       queue->dequeueCmdHandler,
-                       cmd)) {
-         return true;
+      gLog->debug("dequeueCmdHandler is {}", queue->dequeueCmdHandler);
+      if (queue->dequeueCmdHandler) {
+          if (cafe::invoke(cpu::this_core::state(),
+                           queue->dequeueCmdHandler,
+                           cmd)) {
+              return true;
+          }
+      } else {
+          gLog->debug("not executing the dequeueCmdHandler");
       }
 
       OSFastMutex_Lock(virt_addrof(queue->mutex));
