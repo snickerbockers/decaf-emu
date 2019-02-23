@@ -9,6 +9,8 @@
 
 #include <common/strutils.h>
 
+bool oopslol = false;
+
 namespace cafe::coreinit
 {
 
@@ -1524,7 +1526,6 @@ FSOpenFileAsync(virt_ptr<FSClient> client,
    return ret;
 }
 
-
 /**
  * Open a file.
  *
@@ -1561,8 +1562,13 @@ FSOpenFileEx(virt_ptr<FSClient> client,
 
    gLog->debug("ENTER FSOpenFileEx\n");
 
-   FSStatus ret = FSStatus::OK;
-   //    auto ret = internal::fsClientHandleAsyncResult(client, block, result,
+   FSStatus ret;
+   if (oopslol) {
+       ret = FSStatus::OK;
+       oopslol = false;
+   } else
+       ret = internal::fsClientHandleAsyncResult(client, block, result, errorMask);
+
    gLog->debug("Leave {} (return {})", __func__, ret);
 
    return ret;
