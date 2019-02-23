@@ -6,6 +6,8 @@
 #include "cafe/cafe_ppc_interface_invoke.h"
 #include <libcpu/cpu.h>
 
+extern bool oopslol;
+
 namespace cafe::coreinit
 {
 
@@ -201,7 +203,6 @@ fsCmdQueueFinishCmd(virt_ptr<FSCmdQueue> queue)
    }
 }
 
-
 /**
  * Process a command from the queue.
  *
@@ -237,6 +238,7 @@ fsCmdQueueProcessCmd(virt_ptr<FSCmdQueue> queue)
               return true;
           }
       } else {
+          oopslol = true;
           gLog->debug("not executing the dequeueCmdHandler");
       }
 
