@@ -163,6 +163,8 @@ static void
 debugDumpShader(const std::string_view &filename,
                 const std::string_view &info,
                 virt_ptr<ShaderType> shader,
+                be2_virt_ptr<uint8_t> data,
+                be2_val<uint32_t> size,
                 bool isSubroutine = false)
 {
    std::string output;
@@ -175,12 +177,12 @@ debugDumpShader(const std::string_view &filename,
       return;
    }
 
-   if (shader->data) {
+   if (data) {
       gLog->debug("Dumping shader {}", filename);
-      debugDumpData(outputBin, shader->data, shader->size);
+      debugDumpData(outputBin, data, size);
    }
 
-   // Write GSH file
+   // Write GSH file (currently unimplemented for shaders that use GX2RBuffer)
    if (shader->data) {
       gfd::GFDFile gsh;
       addShader(gsh, shader);
@@ -191,8 +193,8 @@ debugDumpShader(const std::string_view &filename,
    auto file = std::ofstream { fmt::format("dump/{}.txt", filename), std::ofstream::out };
 
    // Disassemble
-   if (shader->data) {
-      output = latte::disassemble(gsl::make_span(shader->data.get(), shader->size), isSubroutine);
+   if (data) {
+      output = latte::disassemble(gsl::make_span(data.get(), size), isSubroutine);
    }
 
    file
@@ -308,7 +310,7 @@ debugDumpShader(virt_ptr<const GX2FetchShader> shader)
 
    debugDumpShader(fmt::format("shader_fetch_{}", shader),
                    std::string_view { out.data(), out.size() },
-                   shader,
+                   shader, shader->data, shader->size,
                    true);
 }
 
@@ -323,6 +325,8 @@ debugDumpShader(virt_ptr<const GX2PixelShader> shader)
    fmt::format_to(out, "GX2PixelShader:\n");
    fmt::format_to(out, "  address: {}\n", shader->data);
    fmt::format_to(out, "  size: {}\n", shader->size);
+   fmt::format_to(out, "  alternative address: {}\n", shader->gx2rData.buffer);
+   fmt::format_to(out, "  alternative size: {}\n", shader->gx2rData.elemCount * shader->gx2rData.elemSize);
    fmt::format_to(out, "  mode: {}\n", gx2::to_string(shader->mode));
 
    formatUniformBlocks(out, shader->uniformBlockCount, shader->uniformBlocks);
@@ -331,9 +335,16 @@ debugDumpShader(virt_ptr<const GX2PixelShader> shader)
    formatLoopVars(out, shader->loopVarCount, shader->loopVars);
    formatSamplerVars(out, shader->samplerVarCount, shader->samplerVars);
 
-   debugDumpShader(fmt::format("shader_pixel_{}", shader),
-                   std::string_view { out.data(), out.size() },
-                   shader);
+   if (!shader->data && shader->gx2rData.buffer) {
+      debugDumpShader(fmt::format("shader_pixel_{}", shader),
+                      std::string_view { out.data(), out.size() },
+                      shader, virt_cast<uint8_t*>(shader->gx2rData.buffer),
+                      shader->gx2rData.elemCount * shader->gx2rData.elemSize);
+   } else {
+      debugDumpShader(fmt::format("shader_pixel_{}", shader),
+                      std::string_view { out.data(), out.size() },
+                      shader, shader->data, shader->size);
+   }
 }
 
 void
@@ -347,6 +358,8 @@ debugDumpShader(virt_ptr<const GX2VertexShader> shader)
    fmt::format_to(out, "GX2VertexShader:\n");
    fmt::format_to(out, "  address: {}\n", shader->data);
    fmt::format_to(out, "  size: {}\n", shader->size);
+   fmt::format_to(out, "  alternative address: {}\n", shader->gx2rData.buffer);
+   fmt::format_to(out, "  alternative size: {}\n", shader->gx2rData.elemCount * shader->gx2rData.elemSize);
    fmt::format_to(out, "  mode: {}\n", gx2::to_string(shader->mode));
 
    formatUniformBlocks(out, shader->uniformBlockCount, shader->uniformBlocks);
@@ -356,9 +369,16 @@ debugDumpShader(virt_ptr<const GX2VertexShader> shader)
    formatSamplerVars(out, shader->samplerVarCount, shader->samplerVars);
    formatAttribVars(out, shader->attribVarCount, shader->attribVars);
 
-   debugDumpShader(fmt::format("shader_vertex_{}", shader),
-                   std::string_view { out.data(), out.size() },
-                   shader);
+   if (!shader->data && shader->gx2rData.buffer) {
+      debugDumpShader(fmt::format("shader_vertex_{}", shader),
+                      std::string_view { out.data(), out.size() },
+                      shader, virt_cast<uint8_t*>(shader->gx2rData.buffer),
+                      shader->gx2rData.elemCount * shader->gx2rData.elemSize);
+   } else {
+      debugDumpShader(fmt::format("shader_vertex_{}", shader),
+                      std::string_view { out.data(), out.size() },
+                      shader, shader->data, shader->size);
+   }
 }
 
 } // namespace cafe::gx2::internal
