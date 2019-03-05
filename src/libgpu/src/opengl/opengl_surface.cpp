@@ -1,4 +1,7 @@
 #ifdef DECAF_GL
+
+#include <sstream>
+
 #include "gpu_config.h"
 #include "gpu_memory.h"
 #include "gpu_tiling.h"
@@ -566,6 +569,7 @@ GLDriver::uploadSurface(SurfaceBuffer *buffer,
    if (newHash[0] != buffer->cpuMemHash[0] || newHash[1] != buffer->cpuMemHash[1]) {
       buffer->cpuMemHash[0] = newHash[0];
       buffer->cpuMemHash[1] = newHash[1];
+      gLog->debug("new hash for {}x{} texture is ({}, {})", width, height, newHash[0], newHash[1]);
 
       std::vector<uint8_t> untiledImage, untiledMipmap;
       untiledImage.resize(dstImageSize);
@@ -585,6 +589,15 @@ GLDriver::uploadSurface(SurfaceBuffer *buffer,
          isDepthBuffer,
          bpp
       );
+
+      if (width == 240 && height == 160) {
+          static int nonce = 0;
+          std::stringstream path;
+          path << "fug_" /*<< baseAddress << "_" */<< nonce++ << ".bin";
+          FILE *fug = fopen(path.str().c_str(), "w");
+          fwrite(untiledImage.data(), 1, untiledImage.size(), fug);
+          fclose(fug);
+      }
 
       // Create texture
       auto compressed = latte::getDataFormatIsCompressed(format);
