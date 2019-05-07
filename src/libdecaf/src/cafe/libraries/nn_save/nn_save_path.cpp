@@ -77,20 +77,25 @@ SAVEShutdown()
 SaveStatus
 SAVEInitSaveDir(uint8_t slotNo)
 {
-   if (!sSaveData->initialised) {
+  gLog->debug("enter {}", __func__);
+  if (!sSaveData->initialised) {
       coreinit::internal::OSPanic("save.cpp", 630,
          "SAVE library is not initialized. Call SAVEInit() prior to this function.\n");
    }
 
    auto persistentId = uint32_t { 0 };
    if (!internal::getPersistentId(slotNo, persistentId)) {
-      return SaveStatus::NotFound;
+     gLog->debug("leave {} (NotFound)", __func__);
+
+     return SaveStatus::NotFound;
    }
 
    auto result = nn_acp::ACPCreateSaveDir(persistentId,
                                           ACPDeviceType::Unknown1);
    // TODO: Update ACPGetApplicationBox
-   return internal::translateResult(result);
+   SaveStatus ugh = internal::translateResult(result);
+   gLog->debug("leave {} ({:08X})", __func__, ugh);
+   return ugh;
 }
 
 
@@ -173,15 +178,19 @@ SaveStatus
 translateResult(nn::Result result)
 {
    if (result.ok()) {
+     gLog->debug("translate: OK");
       return SaveStatus::OK;
    }
 
    if (result.code == 0xFFFFFE0C) {
+     gLog->debug("translate: NotFound");
       return SaveStatus::NotFound;
    } else if (result.code == 0xFFFFFA23) {
+     gLog->debug("translate: StorageFull");
       return SaveStatus::StorageFull;
    }
 
+     gLog->debug("translate: MediaError");
    return SaveStatus::MediaError;
 }
 

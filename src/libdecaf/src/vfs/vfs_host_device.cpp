@@ -39,9 +39,12 @@ HostDevice::makeFolder(const User &user,
    }
 
    auto error = std::error_code { };
+   gLog->debug("{} about to create_directory \"{}\"", __func__, (std::string const&)path);
    if (std::filesystem::create_directory(makeHostPath(path), error)) {
+      gLog->debug("it fail!");
       return Error::Success;
    }
+   gLog->debug("it pass!");
 
    return translateError(error);
 }

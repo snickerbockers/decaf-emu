@@ -137,8 +137,10 @@ createAppBoxCache()
 Error
 start()
 {
+   gLog->debug("enter function {}", __func__);
    auto error = createSystemSaveDir("/vol/storage_mlc01/");
    if (error) {
+      gLog->debug("Error {:08X}", error);
       internal::acpLog->error(
          "client::save::start: createSystemSaveDir failed with error = {}", error);
       return error;
@@ -146,6 +148,7 @@ start()
 
    error = createNoDeleteDirs("/vol/storage_mlc01/");
    if (error) {
+      gLog->debug("Error {:08X}", error);
       internal::acpLog->error(
          "client::save::start: createNoDeleteDirs failed with error = {}", error);
       return error;
@@ -153,11 +156,13 @@ start()
 
    error = createAppBoxCache();
    if (error) {
+      gLog->debug("Error {:08X}", error);
       internal::acpLog->error(
          "client::save::start: createAppBoxCache failed with error = {}", error);
       return error;
    }
 
+   gLog->debug("no error!");
    // TODO: StartTimeStampThread
    return Error::OK;
 }

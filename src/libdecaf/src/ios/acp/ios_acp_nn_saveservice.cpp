@@ -138,24 +138,29 @@ GetAccountBossDirPath(uint32_t persistentId,
 static nn::Result
 CreateSaveUserDir(TitleId titleId)
 {
-   auto titleHi = static_cast<uint32_t>(titleId >> 32);
+  gLog->debug("enter {}", __func__);
+  auto titleHi = static_cast<uint32_t>(titleId >> 32);
    auto titleLo = static_cast<uint32_t>(titleId & 0xFFFFFFFF);
 
    auto result = CreateDir(fmt::format("/vol/storage_mlc01/usr/save/{:08x}", titleHi));
    if (!result) {
+     gLog->debug("leave {} ({:08X})", __func__, result);
       return result;
    }
 
    result = CreateDir(fmt::format("/vol/storage_mlc01/usr/save/{:08x}/{:08x}", titleHi, titleLo));
    if (!result) {
+     gLog->debug("leave {} ({:08X})", __func__, result);
       return result;
    }
 
    result = CreateDir(fmt::format("/vol/storage_mlc01/usr/save/{:08x}/{:08x}/user", titleHi, titleLo));
    if (!result) {
+     gLog->debug("leave {} ({:08X})", __func__, result);
       return result;
    }
 
+  gLog->debug("leave {} (success)", __func__);
    return nn::ResultSuccess;
 }
 

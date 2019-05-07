@@ -21,10 +21,13 @@ ACPCreateSaveDir(uint32_t persistentId,
    command.setParameters(persistentId, deviceType);
    auto result = internal::getClient()->sendSyncRequest(command);
    if (result.failed()) {
+     gLog->debug("{} - sendSyncRequest failed ({:08X})", __func__, result);
       return result;
    }
 
-   return command.readResponse();
+   nn::Result res = command.readResponse();
+   gLog->debug("{} - res is {:08X}", __func__, res.code);
+   return res;
 }
 
 nn::Result
